@@ -1,0 +1,7 @@
+$ python3 -B <run>/acceptor/accept_failure_lines.py <temporary copy of work/>
+FAIL breakB-mentionA: must_mention 'rule A' -> CAUGHT (want RED-ELSEWHERE)
+ok   breakB-mentionB: must_mention 'rule B' -> CAUGHT (want CAUGHT)
+ok   breakC-mentionC: must_mention 'rule C' -> CAUGHT (want CAUGHT)
+FAIL breakC-mentionD: must_mention 'rule D' -> CAUGHT (want RED-ELSEWHERE)
+FAIL: 2 verdict(s) wrong
+# exit 1 · cwd a temporary copy of work/ with the break applied: revert scripts/breakcheck.py to the base commit

@@ -1,0 +1,75 @@
+{
+  "judge": "claude",
+  "claims": [
+    {
+      "id": "C0",
+      "claim": "The goal in START.md is met, as far as this bundle shows (claim added by the acceptor).",
+      "verdict": "supported",
+      "why": "START.md's 'Done means' 1-4 are all confirmed by acceptor re-runs: A1 shows --selftest exits 0 with the new sample 'must_mention only on a passing line is RED-ELSEWHERE (RED-ELSEWHERE)'; A2/A3 show the same scenario is RED-ELSEWHERE under the current script but CAUGHT under the reverted base commit; A5 confirms both docs contain 'failure line'; build/diff.patch shows the judge change plus the new MIXED_CHECKER sample and only doc edits, i.e. nothing else in behaviour changed. summary.json records all 5 acceptance items PASS.",
+      "evidence": [
+        "verify/A1.txt",
+        "verify/A2.txt",
+        "verify/A3.txt",
+        "verify/A5.txt",
+        "verify/summary.json",
+        "build/diff.patch"
+      ],
+      "would_settle": ""
+    },
+    {
+      "id": "C1",
+      "claim": "The self-test passes all 22 checks and exits 0, including the mutation whose must_mention appears only on a passing line and is judged RED-ELSEWHERE.",
+      "verdict": "supported",
+      "why": "Acceptor re-run A1.txt shows 'breakcheck selftest · 22/22 passed', exit 0, and includes the line '✔ spec: must_mention only on a passing line is RED-ELSEWHERE (RED-ELSEWHERE)'.",
+      "evidence": [
+        "verify/A1.txt"
+      ],
+      "would_settle": ""
+    },
+    {
+      "id": "C2",
+      "claim": "The same rule B mutation prints rule A only on a passing line; the original HEAD judge returns CAUGHT and the updated judge returns RED-ELSEWHERE.",
+      "verdict": "supported",
+      "why": "Acceptor re-run A2.txt shows breakB-mentionA (break rule B, must_mention 'rule A') judged RED-ELSEWHERE by the current script, and A3.txt shows the same case judged CAUGHT after reverting scripts/breakcheck.py to the base commit (which equals HEAD since the change is uncommitted per C5). old-vs-new.txt confirms the mutated output prints 'rule A' only on the passing line '✔ rule A sample caught' while the failure line names rule B.",
+      "evidence": [
+        "verify/A2.txt",
+        "verify/A3.txt",
+        "evidence/old-vs-new.txt"
+      ],
+      "would_settle": ""
+    },
+    {
+      "id": "C3",
+      "claim": "In 384 judge comparisons, verdict changes were limited to CAUGHT becoming RED-ELSEWHERE with must_mention set; the updated script parses with Python 3.9 grammar.",
+      "verdict": "insufficient",
+      "why": "The 384-comparison result and the Python 3.9 grammar-parse pass appear only in evidence/old-vs-new.txt, which is BUILDER-SUPPLIED and was not re-run by anyone. No acceptor re-run of verify_failure_lines.py exists in the bundle to confirm the count or that all verdict changes were limited to CAUGHT->RED-ELSEWHERE.",
+      "evidence": [
+        "evidence/old-vs-new.txt",
+        "verify_failure_lines.py"
+      ],
+      "would_settle": "An acceptor RE-RUN of verify_failure_lines.py showing the '384 judge comparisons passed' and grammar-check lines."
+    },
+    {
+      "id": "C4",
+      "claim": "README.md and SKILL.md define failure lines and state that passing lines and output with no failure lines cannot satisfy must_mention.",
+      "verdict": "supported",
+      "why": "build/diff.patch (collected by the acceptor) shows README.md and SKILL.md each gain text defining a failure line (first non-space char ✘/✗/× or first word FAIL/FAILED/FAILURE/ERROR, any case, optional ':') and stating 'A name on a passing line cannot satisfy it' and 'Output/output with no failure lines cannot satisfy it either'. Acceptor re-run A5.txt confirms 'failure line' matches in exactly 2 files.",
+      "evidence": [
+        "build/diff.patch",
+        "verify/A5.txt"
+      ],
+      "would_settle": ""
+    },
+    {
+      "id": "C5",
+      "claim": "git diff --check passes and the working tree lists only README.md, SKILL.md and scripts/breakcheck.py as modified.",
+      "verdict": "insufficient",
+      "why": "build/diff.patch (acceptor-collected) lists exactly the 3 modified files, but a diff of tracked changes cannot exclude untracked files, and the 'git diff --check' (whitespace/conflict) pass and the full 'git status --short' listing appear only in evidence/diff-check.txt, which is BUILDER-SUPPLIED and not re-run. No acceptor re-run confirms diff --check passed or that no other/untracked files exist.",
+      "evidence": [
+        "evidence/diff-check.txt",
+        "build/diff.patch"
+      ],
+      "would_settle": "An acceptor RE-RUN of 'git diff --check && git status --short' in work/ showing clean whitespace and only the 3 files."
+    }
+  ]
+}

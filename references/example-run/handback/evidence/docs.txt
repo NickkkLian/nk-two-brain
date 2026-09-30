@@ -1,0 +1,31 @@
+$ git diff -- README.md SKILL.md
+diff --git a/README.md b/README.md
+index eedf334..ea80f82 100644
+--- a/README.md
++++ b/README.md
+@@ -26,6 +26,11 @@ The full procedure, the boundaries and where the rules came from are in [SKILL.m
+ 5. Read the verdicts
+ 6. Pick break points that can actually change behaviour
+ 
++With `--spec`, `must_mention` counts only on failure lines: the first non-space character is `✘`, `✗`
++or `×`, or the first word is FAIL, FAILED, FAILURE or ERROR (any case, optionally followed by `:`).
++A name on a passing line cannot satisfy it. Output with no failure lines cannot satisfy it either;
++a red run without a crash then reads `RED-ELSEWHERE`.
++
+ ## Why it is built this way
+ 
+ **The idea.** A self-test that cannot be made to fail proves nothing. Break the line it guards; the self-test must go red.
+diff --git a/SKILL.md b/SKILL.md
+index 17fc430..559fac1 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -38,6 +38,9 @@ people from doubting.
+      or write the breaks with `--spec`.
+    - Any language, hand-picked breaks: write `mutations.json`
+      (`{"mutations":[{"name":..,"file":..,"find":..,"replace":..,"must_mention":..}]}`) and run with `--spec`.
++     `must_mention` counts only on failure lines: the first non-space character is `✘`, `✗` or `×`, or
++     the first word is FAIL, FAILED, FAILURE or ERROR (any case, optionally followed by `:`).
++     A name on a passing line cannot satisfy it; output with no failure lines cannot satisfy it either.
+    - The script's own `--selftest` runs first and aborts everything if it fails.
+ 5. **Read the verdicts.** `CAUGHT` is the only good one.
+    `UNCOVERED` = the line is decorative or no sample exercises it → add an exclusive sample or delete the line.

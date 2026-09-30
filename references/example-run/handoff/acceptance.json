@@ -1,0 +1,7 @@
+{"items": [
+  {"id": "A1", "cmd": "python3 -B scripts/breakcheck.py --selftest", "expect": "pass"},
+  {"id": "A2", "cmd": "python3 -B {acceptor}/accept_failure_lines.py {root}", "expect": "pass"},
+  {"id": "A3", "cmd": "python3 -B {acceptor}/accept_failure_lines.py {root}", "expect": "fail", "break": {"revert": "scripts/breakcheck.py"}},
+  {"id": "A4", "cmd": "git diff --quiet f3ea528 -- .claude-plugin/plugin.json", "expect": "pass"},
+  {"id": "A5", "cmd": "grep -il 'failure line' SKILL.md README.md | wc -l | grep -q 2", "expect": "pass"}
+]}

@@ -1,0 +1,1 @@
+codex exec -s read-only --skip-git-repo-check --ephemeral -C <empty temporary folder> --output-schema <copy of run>/judge/schema.json -o <copy of run>/judge/raw-output.txt -m gpt-6.1-sol -c model_reasoning_effort=medium -   (bundle on stdin: judge/bundle.md)

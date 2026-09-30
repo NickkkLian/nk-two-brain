@@ -1,0 +1,10 @@
+{
+  "files_changed": 3,
+  "lines_added": 33,
+  "lines_removed": 2,
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "scripts/breakcheck.py"
+  ]
+}

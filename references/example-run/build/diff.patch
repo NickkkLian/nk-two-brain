@@ -1,0 +1,89 @@
+diff --git a/README.md b/README.md
+index eedf334..ea80f82 100644
+--- a/README.md
++++ b/README.md
+@@ -26,6 +26,11 @@ The full procedure, the boundaries and where the rules came from are in [SKILL.m
+ 5. Read the verdicts
+ 6. Pick break points that can actually change behaviour
+ 
++With `--spec`, `must_mention` counts only on failure lines: the first non-space character is `✘`, `✗`
++or `×`, or the first word is FAIL, FAILED, FAILURE or ERROR (any case, optionally followed by `:`).
++A name on a passing line cannot satisfy it. Output with no failure lines cannot satisfy it either;
++a red run without a crash then reads `RED-ELSEWHERE`.
++
+ ## Why it is built this way
+ 
+ **The idea.** A self-test that cannot be made to fail proves nothing. Break the line it guards; the self-test must go red.
+diff --git a/SKILL.md b/SKILL.md
+index 17fc430..559fac1 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -38,6 +38,9 @@ people from doubting.
+      or write the breaks with `--spec`.
+    - Any language, hand-picked breaks: write `mutations.json`
+      (`{"mutations":[{"name":..,"file":..,"find":..,"replace":..,"must_mention":..}]}`) and run with `--spec`.
++     `must_mention` counts only on failure lines: the first non-space character is `✘`, `✗` or `×`, or
++     the first word is FAIL, FAILED, FAILURE or ERROR (any case, optionally followed by `:`).
++     A name on a passing line cannot satisfy it; output with no failure lines cannot satisfy it either.
+    - The script's own `--selftest` runs first and aborts everything if it fails.
+ 5. **Read the verdicts.** `CAUGHT` is the only good one.
+    `UNCOVERED` = the line is decorative or no sample exercises it → add an exclusive sample or delete the line.
+diff --git a/scripts/breakcheck.py b/scripts/breakcheck.py
+index 72d0698..508f59e 100644
+--- a/scripts/breakcheck.py
++++ b/scripts/breakcheck.py
+@@ -8,7 +8,7 @@
+ The target directory is copied to a temporary sandbox; only the copy is mutated. For every mutation four
+ things must hold (a "break matrix"):
+   1. the mutated run exits non-zero              2. the unmutated control run exits zero
+-  3. the red is not a crash (no traceback)       4. if must_mention is set, the output names that assertion
++  3. the red is not a crash (no traceback)       4. if must_mention is set, a failure line names that assertion
+ --spec  : JSON {"mutations":[{"name","file","find","replace","must_mention"?}]}; find must occur exactly once.
+ --auto  : neutralise one line at a time (same-indent `pass`) for every line of the given Python file that
+           matches --pattern (default: append((, assert, raise, sys.exit(1), return 1); a mutation that leaves
+@@ -72,7 +72,10 @@ def judge(rc_control, rc, out, must_mention):
+         return "CRASH"
+     if rc == 0:
+         return "UNCOVERED"
+-    if must_mention and must_mention not in out:
++    if must_mention and not any(
++        must_mention in line and re.match(r"^\s*(?:[✘✗×]|(?:FAIL|FAILED|FAILURE|ERROR)\b)", line, re.IGNORECASE)
++        for line in out.splitlines()
++    ):
+         return "RED-ELSEWHERE"
+     return "CAUGHT"
+ 
+@@ -127,6 +130,17 @@ if __name__ == "__main__":
+ '''
+ 
+ 
++MIXED_CHECKER = CHECKER.split("def selftest():")[0] + '''def selftest():
++    a = check("xxAAAxx") == [("A", "rule A")]
++    b = check("xxBBBxx") == [("B", "rule B")]
++    print("  ✔ rule A sample caught" if a else "  ✘ rule A sample not caught")
++    print("  ✔ rule B sample caught" if b else "  ✘ rule B sample not caught")
++    return 0 if a and b else 1
++if __name__ == "__main__":
++    sys.exit(selftest())
++'''
++
++
+ def selftest():
+     tmp = tempfile.mkdtemp(prefix="breakcheck_self_")
+     open(os.path.join(tmp, "checker.py"), "w").write(CHECKER)
+@@ -157,6 +171,15 @@ def selftest():
+     chk(zero == 2 and "proves nothing" in quiet.getvalue(), f"zero candidate lines is exit 2 'proves nothing', never a green 0 mutations ({zero})")
+     rows = matrix(tmp, f"{sys.executable} -c 'import sys; sys.exit(1)'", spec[:1])
+     chk(rows[0][2] == "CONTROL-RED" and rows[1][2] == "CONTROL-RED", "an always-red command is reported as CONTROL-RED, never as caught")
++    open(os.path.join(tmp, "checker.py"), "w").write(MIXED_CHECKER)
++    rows = matrix(tmp, cmd, [{"name": "passing name only", "file": "checker.py", "find": 'if "BBB" in s:',
++                              "replace": "if False:", "must_mention": "rule A"}])
++    chk(rows[0][2] == "ok" and rows[1][2] == "RED-ELSEWHERE",
++        f"spec: must_mention only on a passing line is RED-ELSEWHERE ({rows[1][2]})")
++    for prefix in ("✘", "✗", "×", "FAIL", "FAILED:", "failure", "eRrOr:"):
++        chk(judge(0, 1, f"  {prefix} rule A", "rule A") == "CAUGHT", f"failure prefix {prefix} names the assertion")
++    for output in ("  ✔ rule A", "rule A", "  FAILEDLY rule A", "note: FAIL rule A", ""):
++        chk(judge(0, 1, output, "rule A") == "RED-ELSEWHERE", f"no failure line cannot satisfy must_mention ({output!r})")
+     shutil.rmtree(tmp, ignore_errors=True)
+     return ok, lines
+ 

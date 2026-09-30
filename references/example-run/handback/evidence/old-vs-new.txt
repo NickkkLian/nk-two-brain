@@ -1,0 +1,12 @@
+$ python3 ../handback/verify_failure_lines.py
+control output:
+  ✔ rule A sample caught
+  ✔ rule B sample caught
+control exit: 0
+mutated output:
+  ✔ rule A sample caught
+  ✘ rule B sample not caught
+mutated exit: 1
+old matcher: CAUGHT; current matcher: RED-ELSEWHERE
+384 judge comparisons passed: changes only CAUGHT to RED-ELSEWHERE when must_mention is set
+Python 3.9 grammar check passed (not a Python 3.9 runtime test)

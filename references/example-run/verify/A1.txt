@@ -1,0 +1,25 @@
+$ python3 -B scripts/breakcheck.py --selftest
+breakcheck selftest · 22/22 passed
+  ✔ control run is green
+  ✔ auto: neutralising rule A's append is CAUGHT (CAUGHT)
+  ✔ auto: neutralising rule B's append is UNCOVERED (UNCOVERED)
+  ✔ spec: flipping rule A is CAUGHT and names 'rule A' (CAUGHT)
+  ✔ spec: a syntax error is CRASH, not a detection (CRASH)
+  ✔ spec: a missing anchor is refused (BAD-ANCHOR)
+  ✔ spec: red on the wrong assertion is RED-ELSEWHERE (RED-ELSEWHERE)
+  ✔ zero candidate lines is exit 2 'proves nothing', never a green 0 mutations (2)
+  ✔ an always-red command is reported as CONTROL-RED, never as caught
+  ✔ spec: must_mention only on a passing line is RED-ELSEWHERE (RED-ELSEWHERE)
+  ✔ failure prefix ✘ names the assertion
+  ✔ failure prefix ✗ names the assertion
+  ✔ failure prefix × names the assertion
+  ✔ failure prefix FAIL names the assertion
+  ✔ failure prefix FAILED: names the assertion
+  ✔ failure prefix failure names the assertion
+  ✔ failure prefix eRrOr: names the assertion
+  ✔ no failure line cannot satisfy must_mention ('  ✔ rule A')
+  ✔ no failure line cannot satisfy must_mention ('rule A')
+  ✔ no failure line cannot satisfy must_mention ('  FAILEDLY rule A')
+  ✔ no failure line cannot satisfy must_mention ('note: FAIL rule A')
+  ✔ no failure line cannot satisfy must_mention ('')
+# exit 0 · cwd work/

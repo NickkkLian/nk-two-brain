@@ -1,0 +1,1 @@
+codex exec --json -s workspace-write -C <run>/work --add-dir <run>/handback --skip-git-repo-check -o <run>/build/last-message.md -m gpt-6.1-sol -c model_reasoning_effort=medium -   (prompt on stdin: build/prompt.md)

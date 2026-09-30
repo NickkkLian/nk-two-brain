@@ -1,0 +1,6 @@
+  ✔ A1   PASS     expect pass · exit 0
+  ✔ A2   PASS     expect pass · exit 0
+  ✔ A3   PASS     expect fail (break) · exit 1
+  ✔ A4   PASS     expect pass · exit 0
+  ✔ A5   PASS     expect pass · exit 0
+✔ planned 5 / ran 5 / failed 0 · trust ok · receipt 0 problem(s) · 5 claim(s)

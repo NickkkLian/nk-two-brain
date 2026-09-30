@@ -1,0 +1,2 @@
+$ grep -il 'failure line' SKILL.md README.md | wc -l | grep -q 2
+# exit 0 · cwd work/

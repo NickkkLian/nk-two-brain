@@ -1,0 +1,4 @@
+$ git diff --check && git status --short
+ M README.md
+ M SKILL.md
+ M scripts/breakcheck.py

@@ -1,0 +1,7 @@
+$ python3 -B <run>/acceptor/accept_failure_lines.py <run>/work
+ok   breakB-mentionA: must_mention 'rule A' -> RED-ELSEWHERE (want RED-ELSEWHERE)
+ok   breakB-mentionB: must_mention 'rule B' -> CAUGHT (want CAUGHT)
+ok   breakC-mentionC: must_mention 'rule C' -> CAUGHT (want CAUGHT)
+ok   breakC-mentionD: must_mention 'rule D' -> RED-ELSEWHERE (want RED-ELSEWHERE)
+all verdicts as expected
+# exit 0 · cwd work/

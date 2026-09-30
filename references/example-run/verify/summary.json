@@ -1,0 +1,82 @@
+{
+  "when": "2026-09-29T19:44:55-07:00",
+  "planned": 5,
+  "ran": 5,
+  "failed": 0,
+  "items": [
+    {
+      "id": "A1",
+      "expect": "pass",
+      "break": false,
+      "status": "PASS",
+      "detail": "exit 0"
+    },
+    {
+      "id": "A2",
+      "expect": "pass",
+      "break": false,
+      "status": "PASS",
+      "detail": "exit 0"
+    },
+    {
+      "id": "A3",
+      "expect": "fail",
+      "break": true,
+      "status": "PASS",
+      "detail": "exit 1"
+    },
+    {
+      "id": "A4",
+      "expect": "pass",
+      "break": false,
+      "status": "PASS",
+      "detail": "exit 0"
+    },
+    {
+      "id": "A5",
+      "expect": "pass",
+      "break": false,
+      "status": "PASS",
+      "detail": "exit 0"
+    }
+  ],
+  "trust": [],
+  "receipt": [],
+  "claims": [
+    {
+      "id": "C1",
+      "text": "The self-test passes all 22 checks and exits 0, including the mutation whose must_mention appears only on a passing line and is judged RED-ELSEWHERE.",
+      "evidence": [
+        "evidence/selftest.txt"
+      ]
+    },
+    {
+      "id": "C2",
+      "text": "The same rule B mutation prints rule A only on a passing line; the original HEAD judge returns CAUGHT and the updated judge returns RED-ELSEWHERE.",
+      "evidence": [
+        "evidence/old-vs-new.txt"
+      ]
+    },
+    {
+      "id": "C3",
+      "text": "In 384 judge comparisons, verdict changes were limited to CAUGHT becoming RED-ELSEWHERE with must_mention set; the updated script parses with Python 3.9 grammar.",
+      "evidence": [
+        "evidence/old-vs-new.txt"
+      ]
+    },
+    {
+      "id": "C4",
+      "text": "README.md and SKILL.md define failure lines and state that passing lines and output with no failure lines cannot satisfy must_mention.",
+      "evidence": [
+        "evidence/docs.txt"
+      ]
+    },
+    {
+      "id": "C5",
+      "text": "git diff --check passes and the working tree lists only README.md, SKILL.md and scripts/breakcheck.py as modified.",
+      "evidence": [
+        "evidence/diff-check.txt"
+      ]
+    }
+  ]
+}

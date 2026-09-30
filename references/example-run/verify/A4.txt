@@ -1,0 +1,2 @@
+$ git diff --quiet f3ea528 -- .claude-plugin/plugin.json
+# exit 0 · cwd work/

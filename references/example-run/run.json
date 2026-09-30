@@ -1,0 +1,15 @@
+{
+  "name": "row79-failure-lines",
+  "repo": "<local clone of nk-breakable-selftest>",
+  "base": "f3ea528110f4bbe8ca3422b47ac19f80ec12115e",
+  "created": "2026-09-29T19:39:55-07:00",
+  "builder": "codex",
+  "build_exit": 0,
+  "judge": "claude",
+  "judged": "2026-09-29T19:49:04-07:00",
+  "judge_same_as_builder": false,
+  "judge_models": [
+    "claude-haiku-4-5-20251001",
+    "claude-opus-4-8[1m]"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "judge": "codex",
+  "claims": [
+    {
+      "id": "C0",
+      "claim": "The goal in START.md is met, as far as this bundle shows (claim added by the acceptor).",
+      "verdict": "supported",
+      "why": "verify/A1.txt reports 22/22 passed and exit 0. verify/A2.txt confirms the corrected verdicts; verify/A3.txt shows reverting the script restores false CAUGHT verdicts. build/diff.patch defines failure lines in both documents and confines the production behavior change to must_mention matching, preserving the preceding crash and exit checks.",
+      "evidence": [
+        "verify/A1.txt",
+        "verify/A2.txt",
+        "verify/A3.txt",
+        "build/diff.patch"
+      ],
+      "would_settle": "",
+      "rests_on": "acceptor"
+    },
+    {
+      "id": "C1",
+      "claim": "The self-test passes all 22 checks and exits 0, including the mutation whose must_mention appears only on a passing line and is judged RED-ELSEWHERE.",
+      "verdict": "supported",
+      "why": "verify/A1.txt contains '22/22 passed', the passing check 'must_mention only on a passing line is RED-ELSEWHERE (RED-ELSEWHERE)', and '# exit 0'. This independently reproduces the builder's result.",
+      "evidence": [
+        "verify/A1.txt"
+      ],
+      "would_settle": "",
+      "rests_on": "acceptor"
+    },
+    {
+      "id": "C2",
+      "claim": "The same rule B mutation prints rule A only on a passing line; the original HEAD judge returns CAUGHT and the updated judge returns RED-ELSEWHERE.",
+      "verdict": "supported",
+      "why": "evidence/old-vs-new.txt shows the mutated output as '✔ rule A sample caught' and '✘ rule B sample not caught', followed by 'old matcher: CAUGHT; current matcher: RED-ELSEWHERE'. verify_failure_lines.py extracts the old judge from HEAD and applies both judges to that same output. These are builder-supplied results, with independent corroboration of the verdict difference in A2 and A3.",
+      "evidence": [
+        "evidence/old-vs-new.txt",
+        "verify_failure_lines.py",
+        "verify/A2.txt",
+        "verify/A3.txt"
+      ],
+      "would_settle": "",
+      "rests_on": "acceptor"
+    },
+    {
+      "id": "C3",
+      "claim": "In 384 judge comparisons, verdict changes were limited to CAUGHT becoming RED-ELSEWHERE with must_mention set; the updated script parses with Python 3.9 grammar.",
+      "verdict": "supported",
+      "why": "evidence/old-vs-new.txt reports '384 judge comparisons passed: changes only CAUGHT to RED-ELSEWHERE when must_mention is set' and 'Python 3.9 grammar check passed'. verify_failure_lines.py defines 384 combinations, asserts the stated restriction for every changed verdict, and calls ast.parse(source, feature_version=(3, 9)). This supports the finite comparison and grammar claims, without establishing Python 3.9 runtime compatibility.",
+      "evidence": [
+        "evidence/old-vs-new.txt",
+        "verify_failure_lines.py"
+      ],
+      "would_settle": "",
+      "rests_on": "builder only"
+    },
+    {
+      "id": "C4",
+      "claim": "README.md and SKILL.md define failure lines and state that passing lines and output with no failure lines cannot satisfy must_mention.",
+      "verdict": "supported",
+      "why": "build/diff.patch's README.md hunk at +26 and SKILL.md hunk at +38 explicitly define the symbol and word prefixes, case handling, and optional colon. Both say passing lines and output with no failure lines cannot satisfy must_mention.",
+      "evidence": [
+        "build/diff.patch"
+      ],
+      "would_settle": "",
+      "rests_on": "acceptor"
+    },
+    {
+      "id": "C5",
+      "claim": "git diff --check passes and the working tree lists only README.md, SKILL.md and scripts/breakcheck.py as modified.",
+      "verdict": "supported",
+      "why": "evidence/diff-check.txt shows 'git diff --check && git status --short' reaching status output and listing only README.md, SKILL.md, and scripts/breakcheck.py. The acceptor-collected build/diff.patch likewise contains only those three files. The whitespace check itself is builder-supplied.",
+      "evidence": [
+        "evidence/diff-check.txt",
+        "build/diff.patch"
+      ],
+      "would_settle": "",
+      "rests_on": "acceptor"
+    }
+  ]
+}
