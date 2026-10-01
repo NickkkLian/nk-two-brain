@@ -23,6 +23,16 @@ open item on the author's own list for that repository. The fix was built in a l
 | judge, Codex | The same run-2 bundle, judged through the Codex route (`--judge codex`, gpt-6.1-sol, medium, read-only sandbox, empty folder) on a copy of the run: 6 supported. In its reasons it says which parts rest on builder files. | `judge/codex-judge-verdicts.md` |
 | post | Draft from the run's files (Claude run 2); every number names its source file. | `post/draft.md` |
 
+## Checking the saved verdicts yourself
+
+`judge/raw-output.txt` is the answer the judge gave in run 2, as `--check` reads it: the `structured_output` of the recorded
+`claude -p` call, with that call's session, cost and usage fields left out. From the skill folder,
+`python3 scripts/two_brain.py judge references/example-run --check` holds that answer to the rules a verdict has to follow and
+prints the six verdicts; it calls no model, leaves `judge/bundle.md` as the judge read it, and writes `judge/verdicts.json`,
+which matches `judge/run-2-verdicts.json`. (The command also rebuilds the bundle in memory to list the files a verdict may
+cite. That list has two more files than the bundle the judge read: `verify/first-pass-output.txt` and `verify/output.txt`
+were added to this folder for the timeline above.)
+
 ## What this run shows, and what it does not
 
 - The acceptor's own checks, not the builder's report, are what show the fix works: A2 passes on the new code and

@@ -4,7 +4,7 @@ description: "Run a coding task through two different AI agents with proof at th
 license: MIT
 metadata:
   provenance: own practice (2026-09) delegating work between Claude Code and Codex; see Provenance
-  version: 0.1.1
+  version: 0.1.2
 ---
 # Two brains
 
@@ -113,4 +113,5 @@ events), it can replace this stage: the later stages only read `work/`, `handbac
 Own practice, 2026-09: whole lines of work handed from Claude Code to Codex through handoff packages, with a second
 agent auditing the evidence afterwards. This skill joins those separate habits into one run folder and one command.
 The first end-to-end run is recorded in `references/example-run/README.md`: a fix to must_mention matching in
-nk-breakable-selftest, handed to Codex and judged by a separate Claude run. No external source.
+nk-breakable-selftest, handed to Codex and judged by a separate Claude run. `two_brain.py judge references/example-run --check`
+re-checks that run's saved judge answer without calling a model. No external source.

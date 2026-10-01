@@ -633,7 +633,9 @@ def cmd_judge(a):
     if not os.path.isfile(os.path.join(P["verify"], "summary.json")):
         print("✘ run verify first: the judge reads the acceptor's re-run results"); return 1
     bundle, claims, files = build_bundle(P)
-    wr(os.path.join(P["judge"], "bundle.md"), bundle)
+    bundle_p = os.path.join(P["judge"], "bundle.md")
+    if not (a.check and os.path.isfile(bundle_p)):         # --check reads a saved answer: the bundle that judge was given stays as it is
+        wr(bundle_p, bundle)
     wr(os.path.join(P["judge"], "schema.json"), json.dumps(JUDGE_SCHEMA, indent=1) + "\n")
     raw_p = os.path.join(P["judge"], "raw-output.txt")
     judge = a.judge or plan_roles()["judge"]
@@ -671,6 +673,10 @@ def cmd_judge(a):
             wr(raw_p, "")
         shutil.rmtree(empty, ignore_errors=True)
         meta(P, judge=judge, judged=now(), judge_same_as_builder=(judge == builder))
+    if a.check and not os.path.isfile(raw_p):
+        print(f"✘ no saved judge answer to check: {raw_p} does not exist.\n"
+              f"  --check reads the JSON a judge wrote; save it there first (two_brain.py judge {P['run']} --judge manual says how)")
+        return 2
     obj = parse_judge_output(rd(raw_p))
     probs = [("J0", "no JSON in the judge's answer")] if obj is None else validate_verdicts(obj, claims, files)
     if probs:
@@ -1023,6 +1029,21 @@ def selftest():
         os.remove(os.path.join(P["judge"], "verdicts.json"))
         rc, out = q("post", run)
         chk(rc == 1, "T34 no draft without the judge's verdicts")
+        # the recorded example that ships with the skill: its saved judge answer must pass --check as it is
+        ex = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "references", "example-run")
+        ex2 = os.path.join(tmp, "example-run")
+        if os.path.isdir(ex):
+            shutil.copytree(ex, ex2)
+        before = rd(os.path.join(ex2, "judge", "bundle.md"))
+        rc, out = q("judge", ex2, "--check")
+        chk(rc == 0 and "judged 6 claims: 6 supported" in out and
+            json.loads(rd(os.path.join(ex2, "judge", "verdicts.json"), "{}") or "{}").get("claims") == json.loads(rd(os.path.join(ex2, "judge", "run-2-verdicts.json"), "{}") or "{}").get("claims"),
+            "T66 the shipped example run: judge --check reads its saved answer and gives the recorded verdicts")
+        chk(bool(before) and rd(os.path.join(ex2, "judge", "bundle.md")) == before, "T67 --check leaves the bundle the judge was given untouched")
+        if os.path.isfile(os.path.join(ex2, "judge", "raw-output.txt")):
+            os.remove(os.path.join(ex2, "judge", "raw-output.txt"))
+        rc, out = q("judge", ex2, "--check")
+        chk(rc == 2 and "no saved judge answer to check" in out and "J0" not in out, "T68 --check with no saved answer says so in plain words")
     except Exception as e:                                 # a crash is reported as a crash, never as a pass
         import traceback
         lines.append("  ✘ CRASH " + "".join(traceback.format_exception_only(type(e), e)).strip())

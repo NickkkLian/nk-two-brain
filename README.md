@@ -26,12 +26,14 @@ git clone https://github.com/NickkkLian/nk-two-brain && cd nk-two-brain
 python3 scripts/two_brain.py --selftest
 python3 scripts/two_brain.py init demo-run --repo . --name demo
 python3 scripts/two_brain.py seal demo-run
+cp -R references/example-run demo-example
+python3 scripts/two_brain.py judge demo-example --check
 ```
 
 The self-test ends on this line:
 
 ```text
-✔ selftest passed (65/65)
+✔ selftest passed (68/68)
 ```
 
 The example commands print this (recorded in a fresh copy with an empty home folder; the path of the clone is taken out):
@@ -39,15 +41,23 @@ The example commands print this (recorded in a fresh copy with an empty home fol
 ```text
 $ python3 scripts/two_brain.py init demo-run --repo . --name demo
 ✔ run demo-run
-  work: fresh clone of . at 1161f1f21b14, branch two-brain/demo, no remote
+  work: fresh clone of . at 8cad279de01f, branch two-brain/demo, no remote
   next: fill demo-run/handoff/START.md and demo-run/handoff/acceptance.json, put hidden checks in demo-run/acceptor/, then seal
 $ python3 scripts/two_brain.py seal demo-run
   ✘ S1 START.md still has 4 '<<< FILL' slot(s)
   ✘ S2 acceptance.json has no items: a run with no acceptance checks has nothing to re-run
 ✘ not sealed
+$ python3 scripts/two_brain.py judge demo-example --check
+  C0   supported      The four Done-means are each covered by acceptor re-runs. A1 shows the self-test exits 0 with the new RED-ELSE
+  C1   supported      The acceptor's own re-run of the self-test prints 'breakcheck selftest 22/22 passed', includes 'spec: must_men
+  C2   supported      old-vs-new.txt shows the rule-B mutation output printing 'rule A' only on a passing check line while rule B fa
+  C3   supported      verify_failure_lines.py iterates itertools.product over 2 control x 3 rc x 16 outputs x 4 mentions = 384 cases
+  C4   supported      build/diff.patch (acceptor-collected) shows README.md adds the failure-line definition plus 'A name on a passi
+  C5   supported      diff-check.txt runs 'git diff --check && git status --short'; the && chain reaching git status shows diff --ch
+✔ judged 6 claims: 6 supported, 0 not supported, 0 insufficient
 ```
 
-The last command exits 1 on purpose: `seal` refuses a handoff whose slots are still empty. The stages after it (`build`, `verify`, `judge`) call Codex or Claude and spend their quota, so they are not part of this block; `references/example-run/` holds a complete run with every file those stages wrote.
+The second command exits 1 on purpose: `seal` refuses a handoff whose slots are still empty. The stages between that and a verdict (`build`, `verify`, `judge`) call Codex or Claude and spend their quota, so the last two lines use the recorded run in `references/example-run/` instead: `judge --check` reads the answer the judge gave on 2026-09-29 (`judge/raw-output.txt`), holds it to the rules a verdict has to follow, and prints the six verdicts. No model is called.
 
 ### What to type
 
@@ -71,9 +81,25 @@ Part of [nickkk-skills](https://github.com/NickkkLian/nickkk-skills) — skills 
 - `verify` re-runs the acceptor's own checks, including one with the change undone that must go red, and prints planned / ran / failed; NOT RUN is never a pass.
 - `judge` gives a tool-less model run only the evidence bundle; it must answer supported / not supported / insufficient for every claim, and an answer that breaks the rules is rejected, not read.
 - `post` drafts what happened from the run's files, every number with its source file.
-- The example run is real: a fix to nk-breakable-selftest handed to Codex, re-checked, and judged by Claude, with the full transcript.
+- The example run is real: a fix to nk-breakable-selftest handed to Codex, re-checked, and judged by Claude, with the full transcript. `judge references/example-run --check` re-reads the judge's saved answer and prints its six verdicts, with no model call.
 
 The full procedure, the boundaries and where the rules came from are in [SKILL.md](SKILL.md).
+
+## Next to codex-plugin-cc
+
+The tool most people use today to send work from Claude Code to Codex is OpenAI's own
+[codex-plugin-cc](https://github.com/openai/codex-plugin-cc). Its README (read 2026-10-01) offers `/codex:rescue` to hand Codex a
+task, `/codex:review` and `/codex:adversarial-review` to have Codex review your changes, background jobs with `/codex:status` and
+`/codex:result`, and an optional review gate that keeps Claude from stopping while a Codex review still finds issues. If you want
+delegation or a second-model code review inside your session, use it: it is one install, OpenAI maintains it, and it does those
+jobs with far less ceremony than this skill.
+
+nk-two-brain is for a narrower question: whether to believe what came back. It adds three things that README does not describe.
+The builder works in a fresh clone and is told not to read your acceptance checks; you re-run them yourself after the build, and
+one of them puts the old code back and has to fail. A judge with every tool switched off reads only the evidence bundle. Each
+verdict is one of three words, and says whether it rests on anything the acceptor produced or only on files the builder wrote.
+The price is more steps and more quota per task. codex-plugin-cc was read, not installed or run here, and the two were not
+compared on the same task.
 
 ## How it works
 
@@ -174,9 +200,9 @@ python3 scripts/two_brain.py --selftest
 ```
 
 Python 3.9+, standard library only; needs git. Two break matrices were run on two_brain.py in a sandbox copy.
-40 lines that record a finding or return a failing exit code, matched by a pattern rather than listed by hand
+41 lines that record a finding or return a failing exit code, matched by a pattern rather than listed by hand
 (two of them inside the self-test's stand-in builders), were neutralised one at a time; each turned the self-test red
-without a traceback. 17 hand-written breaks of checks that are not such lines (the crash rule, the seal
+without a traceback. 19 hand-written breaks of checks that are not such lines (the crash rule, the seal
 comparison, the judge's switched-off tools, the bundle's file list, the untracked-file diff, among others) each turned
 the self-test red, and each named its own check on a failing line. The unmutated control stayed green both times.
 
