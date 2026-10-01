@@ -4,7 +4,7 @@ description: "Run a coding task through two different AI agents with proof at th
 license: MIT
 metadata:
   provenance: own practice (2026-09) delegating work between Claude Code and Codex; see Provenance
-  version: 0.1.0
+  version: 0.1.1
 ---
 # Two brains
 

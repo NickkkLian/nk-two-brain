@@ -1,8 +1,63 @@
 # nk-two-brain
 
-![nk-two-brain](https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/social/nk-two-brain.png)
+A [Claude Code](https://code.claude.com) skill. Hand a coding task from Claude to OpenAI Codex, re-run your own checks on what comes back, and have a run that did no building judge every claim: supported, not supported or insufficient.
 
-A [Claude Code](https://code.claude.com) skill. Run a coding task through two different AI agents with proof at the end: Claude writes a handoff package (goal, boundaries as orders, what the builder cannot see, acceptance checks kept from the builder), OpenAI Codex builds it in a fresh clone, the acceptor re-runs its own checks (including one with the code broken on purpose), a separate model run that did no building judges each claim from the evidence alone with exactly three verdicts (supported, not supported, insufficient), and a post draft is written from the run's files.
+**What you get.** The recorded example run in `references/example-run/` (2026-09-29): Codex built a real fix, the acceptor re-ran its own checks, and a run that did no building judged every claim, twice.
+
+![nk-two-brain: two judge runs on the same build: run 1 gives 4 supported and 2 insufficient, run 2 gives 6 supported](https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/results/nk-two-brain.png)
+
+| claim | judge run 1 | judge run 2 | run 2 rests on |
+|---|---|---|---|
+| C0: The goal in START.md is met, as far as this bundle shows… | supported | supported | acceptor |
+| C1: The self-test passes all 22 checks and exits 0, including the mutation… | supported | supported | acceptor |
+| C2: The same rule B mutation prints rule A only on a passing line; the… | supported | supported | acceptor |
+| C3: In 384 judge comparisons, verdict changes were limited to CAUGHT becoming… | insufficient | supported | builder only |
+| C4: README.md and SKILL.md define failure lines and state that passing lines… | supported | supported | acceptor |
+| C5: git diff --check passes and the working tree lists only README.md,… | insufficient | supported | acceptor |
+
+The builder was Codex (gpt-6.1-sol, effort medium): 179 s, 3 files changed (+33 −2). The acceptor then ran its own 5 checks, which the builder was told not to read: planned 5 / ran 5 / failed 0; check A3 puts the old code back and has to fail, and it did. Judge run 1: 4 supported, 2 insufficient. Judge run 2: 6 supported. Between the two runs one heading of the bundle was made clearer; C3 changed on evidence that had not changed, and it rests on files only the builder wrote, which the last column shows. A verdict is one model reading the evidence once: re-run builder-only evidence yourself, or judge more than once.
+
+## Try it
+
+Nothing is installed and nothing under `~/.claude` changes: clone, run the self-tests, run the example. It writes only `demo*` files inside the clone.
+
+```bash
+git clone https://github.com/NickkkLian/nk-two-brain && cd nk-two-brain
+python3 scripts/two_brain.py --selftest
+python3 scripts/two_brain.py init demo-run --repo . --name demo
+python3 scripts/two_brain.py seal demo-run
+```
+
+The self-test ends on this line:
+
+```text
+✔ selftest passed (65/65)
+```
+
+The example commands print this (recorded in a fresh copy with an empty home folder; the path of the clone is taken out):
+
+```text
+$ python3 scripts/two_brain.py init demo-run --repo . --name demo
+✔ run demo-run
+  work: fresh clone of . at 1161f1f21b14, branch two-brain/demo, no remote
+  next: fill demo-run/handoff/START.md and demo-run/handoff/acceptance.json, put hidden checks in demo-run/acceptor/, then seal
+$ python3 scripts/two_brain.py seal demo-run
+  ✘ S1 START.md still has 4 '<<< FILL' slot(s)
+  ✘ S2 acceptance.json has no items: a run with no acceptance checks has nothing to re-run
+✘ not sealed
+```
+
+The last command exits 1 on purpose: `seal` refuses a handoff whose slots are still empty. The stages after it (`build`, `verify`, `judge`) call Codex or Claude and spend their quota, so they are not part of this block; `references/example-run/` holds a complete run with every file those stages wrote.
+
+### What to type
+
+With the skill installed ([Install](#install)), invoke it by name in Claude Code and say what to hand over:
+
+> /nk-two-brain hand this fix to Codex and judge what comes back: [the task, in a sentence or two]
+
+Claude Code is the host: it writes the handoff and drives the stages. Codex is the builder, and can be the judge. Whether a plain request triggers the skill without its name, and starting it from inside a Codex session, are both not tested.
+
+![nk-two-brain](https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/social/nk-two-brain.png)
 
 Part of [nickkk-skills](https://github.com/NickkkLian/nickkk-skills) — skills that stop an AI coding agent's
 "done, tested, safe" from being taken on faith.
@@ -22,12 +77,16 @@ The full procedure, the boundaries and where the rules came from are in [SKILL.m
 
 ## How it works
 
-1. Check the machine
-2. Start a run
-3. Write the handoff
-4. Write the acceptance checks
-5. Seal
-6. Build
+1. Check the machine. `python3 scripts/two_brain.py doctor` names the builder and judge it found.
+2. Start a run. `two_brain.py init <run> --repo <git repo> --name <short-name> [--base REF]`.
+3. Write the handoff (`handoff/START.md`).
+4. Write the acceptance checks (`handoff/acceptance.json`) and put any hidden test in `acceptor/`.
+5. Seal. `two_brain.py seal <run>` refuses while a slot is unfilled, then prints a trust-root hash.
+6. Build. `two_brain.py build <run> [--builder codex|claude|manual] [--model M] [--effort E]`.
+7. Verify. `two_brain.py verify <run> --trust-root <hash>`.
+8. Judge. `two_brain.py judge <run> [--judge claude|codex|manual]`.
+9. Draft the post. `two_brain.py post <run>` writes `post/draft.md` from the run's files only.
+10. Accept or send back. Read `judge/verdicts.md`.
 
 ## Why it is built this way
 
@@ -39,7 +98,7 @@ The full procedure, the boundaries and where the rules came from are in [SKILL.m
 
 ## Install
 
-Pick one of four ways: three for Claude Code, one for OpenAI Codex. Skills load when a session starts, so open a **new** session after installing.
+Pick one of four ways: three for Claude Code, and one that puts the folder where OpenAI Codex reads skills. Claude Code is the tested host; Codex was tested as the builder and as a judge, not as the session the skill starts from. Skills load when a session starts, so open a **new** session after installing.
 
 ### 1 · Terminal, one command
 
@@ -49,7 +108,7 @@ git clone https://github.com/NickkkLian/nk-two-brain ~/.claude/skills/nk-two-bra
 
 1. Run the command above (for one project only, clone into `.claude/skills/nk-two-brain` inside that project).
 2. Start a new Claude Code session.
-3. Check it loaded: type `/nk-two-brain` — it appears in the slash-command menu. Or just ask for the task; the skill triggers on its own.
+3. Check it loaded: type `/nk-two-brain` — it appears in the slash-command menu. Invoke it by that name: whether a plain request triggers it has not been tested.
 
 ### 2 · Claude Code in a terminal session (plugin)
 
@@ -96,7 +155,7 @@ git clone https://github.com/NickkkLian/nk-two-brain.git ~/.agents/skills/nk-two
 
 1. Run the command above (for one project only, clone into `.agents/skills/nk-two-brain` inside that project).
 2. Start a new Codex session.
-3. Check it loaded, without spending a model call: `codex debug prompt-input | grep -o -- '- nk-two-brain[a-z0-9:-]*' | sort -u` prints `- nk-two-brain:nk-two-brain:`. Codex adds the `nk-two-brain:` prefix because this repository also carries a Claude Code plugin manifest. Ask for the task and the skill triggers on its own, or type `$` and pick it from the list.
+3. Check it loaded, without spending a model call: `codex debug prompt-input | grep -o -- '- nk-two-brain[a-z0-9:-]*' | sort -u` prints `- nk-two-brain:nk-two-brain:`. Codex adds the `nk-two-brain:` prefix because this repository also carries a Claude Code plugin manifest. Starting this skill from inside a Codex session has not been tested.
 
 ## Compatibility
 

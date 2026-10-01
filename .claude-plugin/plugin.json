@@ -1,7 +1,7 @@
 {
   "name": "nk-two-brain",
   "description": "Run a coding task through two different AI agents with proof at the end: Claude writes a handoff package (goal, boundaries as orders, what the builder cannot see, acceptance checks kept from the builder), OpenAI Codex builds it in a fresh clone, the acceptor re-runs its own checks (including one with the code broken on purpose), a separate model run that did no building judges each claim from the evidence alone with exactly three verdicts (supported, not supported, insufficient), and a post draft is written from the run's files.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Nick Lian",
     "url": "https://github.com/NickkkLian"
