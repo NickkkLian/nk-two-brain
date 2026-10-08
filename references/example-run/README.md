@@ -13,7 +13,7 @@ open item on the author's own list for that repository. The fix was built in a l
 | stage | what happened | files |
 |---|---|---|
 | handoff | Claude (the session driving the skill) wrote the goal, three task-specific orders with reasons, a definition of "failure line" under *What you cannot see*, and five acceptance checks. One of them, A3, runs the hidden test with `scripts/breakcheck.py` put back to the base commit and must fail. | `handoff/START.md`, `handoff/acceptance.json`, `acceptor/accept_failure_lines.py` |
-| build | Codex CLI 0.159.0, model gpt-6.1-sol, effort medium: exit 0 after 179 s, 7 commands, 3 files changed (+33 −2). It also wrote a helper script and four evidence files for its five claims. | `build/transcript.md` (readable), `build/events.jsonl` (raw), `build/diff.patch`, `handback/` |
+| build | Codex CLI 0.159.0, model gpt-6.1-sol, effort medium: exit 0 after 179 s, 7 commands, 3 files changed (+33 −2). It also wrote a helper script and four evidence files for its five claims. | `build/transcript.md` (every command and its output, rendered from Codex's event stream; the raw stream is not shipped), `build/diff.patch`, `handback/` |
 | verify, pass 1 | All 5 acceptance checks passed, A3 included: with the old file, the hidden test reports 2 of its 4 verdicts wrong (`verify/A3.txt`). But the receipt was flagged 5 times: Codex cited its files as `evidence/selftest.txt`, and the checker only accepted a bare name. The hand-back rules had not said which. | `verify/first-pass-output.txt` |
 | tool change | `two_brain.py` now accepts both forms, and the hand-back rules say so. | — |
 | verify, pass 2 | planned 5 / ran 5 / failed 0, receipt clean. | `verify/output.txt`, `verify/A1.txt` … `A5.txt`, `verify/summary.json` |

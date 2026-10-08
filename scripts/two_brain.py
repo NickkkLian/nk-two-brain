@@ -1002,7 +1002,7 @@ def selftest():
         rc, out = q()
         chk(rc == 2, "T54 no sub-command prints help and exits 2")
         saved_env = dict(os.environ)
-        os.environ.update({"CLAUDECODE": "1", "CLAUDE_CODE_ENTRYPOINT": "x", "ANTHROPIC_BASE_URL": "http://parent", "KEEP_ME": "1"})
+        os.environ.update({"CLAUDECODE": "1", "CLAUDE_CODE_ENTRYPOINT": "x", "ANTHROPIC_BASE_URL": "the-parent-session", "KEEP_ME": "1"})
         ce = child_env(); os.environ.clear(); os.environ.update(saved_env)
         chk("CLAUDECODE" not in ce and "CLAUDE_CODE_ENTRYPOINT" not in ce and "ANTHROPIC_BASE_URL" not in ce and ce.get("KEEP_ME") == "1",
             "T64 a child started from inside Claude Code does not inherit the parent session's variables")

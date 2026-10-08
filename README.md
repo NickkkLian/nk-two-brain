@@ -41,7 +41,7 @@ The example commands print this (recorded in a fresh copy with an empty home fol
 ```text
 $ python3 scripts/two_brain.py init demo-run --repo . --name demo
 ✔ run demo-run
-  work: fresh clone of . at 8cad279de01f, branch two-brain/demo, no remote
+  work: fresh clone of . at 98bdb2952d66, branch two-brain/demo, no remote
   next: fill demo-run/handoff/START.md and demo-run/handoff/acceptance.json, put hidden checks in demo-run/acceptor/, then seal
 $ python3 scripts/two_brain.py seal demo-run
   ✘ S1 START.md still has 4 '<<< FILL' slot(s)
