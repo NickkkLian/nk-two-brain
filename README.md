@@ -215,6 +215,10 @@ the self-test red, and each named its own check on a failing line. The unmutated
 - A verdict is one model reading the evidence once. In the example run, two judge runs on identical evidence disagreed about one claim (supported on builder files only). Re-run builder-only evidence, or judge more than once.
 - `trust.json` sits in the run folder. It proves the handoff was not changed only if you kept the trust-root hash somewhere the builder could not write.
 
+## Privacy
+
+This skill's script runs on your computer, started by the agent you use it in, and it starts programs you already have: the OpenAI Codex or Claude Code command-line tool, to build and to judge. It clones the git repository you name into a run folder you choose and writes every stage's files there: the handoff, the builder's transcript and diff, the output of your own checks, and the verdicts. What leaves your computer leaves through those tools, under your own sign-in and started with your environment variables: the builder is handed the task and works in the clone, the judge is handed the evidence bundle, and what else they read or send follows their own settings; the script itself opens no network connection, and the run folder stays until you delete it. Questions: open an issue on this repository.
+
 ## License
 
 MIT. Read a script before letting it run in your environment.
