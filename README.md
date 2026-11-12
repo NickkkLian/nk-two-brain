@@ -2,7 +2,7 @@
 
 A [Claude Code](https://code.claude.com) skill. Hand a coding task from Claude to OpenAI Codex, re-run your own checks on what comes back, and have a run that did no building judge every claim: supported, not supported or insufficient.
 
-**What you get.** The recorded example run in `references/example-run/` (2026-09-29): Codex built a real fix, the acceptor re-ran its own checks, and a run that did no building judged every claim, twice.
+**What you get:** the recorded example run in `references/example-run/`: Codex built a real fix, the acceptor re-ran its own checks, and a run that did no building judged every claim, twice.
 
 ![nk-two-brain: two judge runs on the same build: run 1 gives 4 supported and 2 insufficient, run 2 gives 6 supported](https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/results/nk-two-brain.png)
 
@@ -15,26 +15,23 @@ A [Claude Code](https://code.claude.com) skill. Hand a coding task from Claude t
 | C4: README.md and SKILL.md define failure lines and state that passing lines… | supported | supported | acceptor |
 | C5: git diff --check passes and the working tree lists only README.md,… | insufficient | supported | acceptor |
 
-The builder was Codex (gpt-6.1-sol, effort medium): 179 s, 3 files changed (+33 −2). The acceptor then ran its own 5 checks, which the builder was told not to read: planned 5 / ran 5 / failed 0; check A3 puts the old code back and has to fail, and it did. Judge run 1: 4 supported, 2 insufficient. Judge run 2: 6 supported. Between the two runs one heading of the bundle was made clearer; C3 changed on evidence that had not changed, and it rests on files only the builder wrote, which the last column shows. A verdict is one model reading the evidence once: re-run builder-only evidence yourself, or judge more than once.
+The builder was Codex (gpt-6.1-sol, effort medium): 179 s, 3 files changed (+33 −2). The acceptor then ran its own 5 checks, which the builder was told not to read: planned 5 / ran 5 / failed 0; check A3 puts the old code back and has to fail, and it did. Judge run 1: 4 supported, 2 insufficient. Judge run 2: 6 supported. Between the two runs one heading of the bundle was made clearer; C3 changed on evidence that had not changed, and it rests on files only the builder wrote, which the last column shows.
+
+Part of [nickkk-skills](https://github.com/NickkkLian/nickkk-skills): 14 agent skills that work with numbers, check an agent's work, guard a repository, and write and present.
 
 ## Try it
 
-Nothing is installed and nothing under `~/.claude` changes: clone, run the self-tests, run the example. It writes only `demo*` files inside the clone.
+Clone and run the example:
 
 ```bash
 git clone https://github.com/NickkkLian/nk-two-brain && cd nk-two-brain
-python3 scripts/two_brain.py --selftest
 python3 scripts/two_brain.py init demo-run --repo . --name demo
 python3 scripts/two_brain.py seal demo-run
 cp -R references/example-run demo-example
 python3 scripts/two_brain.py judge demo-example --check
 ```
 
-The self-test ends on this line:
-
-```text
-✔ selftest passed (68/68)
-```
+None of this installs anything or changes `~/.claude`; it writes only `demo*` files inside the clone.
 
 The example commands print this (recorded in a fresh copy with an empty home folder; the path of the clone is taken out):
 
@@ -69,9 +66,6 @@ Claude Code is the host: it writes the handoff and drives the stages. Codex is t
 
 ![nk-two-brain](https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/social/nk-two-brain.png)
 
-Part of [nickkk-skills](https://github.com/NickkkLian/nickkk-skills) — skills that stop an AI coding agent's
-"done, tested, safe" from being taken on faith.
-
 ![nk-two-brain demo: before and after](https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/nk-two-brain.gif)
 
 ## What it does
@@ -81,7 +75,7 @@ Part of [nickkk-skills](https://github.com/NickkkLian/nickkk-skills) — skills 
 - `verify` re-runs the acceptor's own checks, including one with the change undone that must go red, and prints planned / ran / failed; NOT RUN is never a pass.
 - `judge` gives a tool-less model run only the evidence bundle; it must answer supported / not supported / insufficient for every claim, and an answer that breaks the rules is rejected, not read.
 - `post` drafts what happened from the run's files, every number with its source file.
-- The example run is real: a fix to nk-breakable-selftest handed to Codex, re-checked, and judged by Claude, with the full transcript. `judge references/example-run --check` re-reads the judge's saved answer and prints its six verdicts, with no model call.
+- The example run is real: a fix to one of the author's own tools, a self-test break checker, handed to Codex, re-checked, and judged by Claude, with the full transcript. `judge references/example-run --check` re-reads the judge's saved answer and prints its six verdicts, with no model call.
 
 The full procedure, the boundaries and where the rules came from are in [SKILL.md](SKILL.md).
 
@@ -198,6 +192,14 @@ This skill's frontmatter uses only name, description, license and metadata.
 ```bash
 python3 scripts/two_brain.py --selftest
 ```
+
+The self-test ends on this line:
+
+```text
+✔ selftest passed (68/68)
+```
+
+The example run at the top of this page was recorded on 2026-09-29.
 
 Python 3.9+, standard library only; needs git. Two break matrices were run on two_brain.py in a sandbox copy.
 41 lines that record a finding or return a failing exit code, matched by a pattern rather than listed by hand
