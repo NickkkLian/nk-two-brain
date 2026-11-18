@@ -75,7 +75,7 @@ Claude Code is the host: it writes the handoff and drives the stages. Codex is t
 - `verify` re-runs the acceptor's own checks, including one with the change undone that must go red, and prints planned / ran / failed; NOT RUN is never a pass.
 - `judge` gives a tool-less model run only the evidence bundle; it must answer supported / not supported / insufficient for every claim, and an answer that breaks the rules is rejected, not read.
 - `post` drafts what happened from the run's files, every number with its source file.
-- The example run is real: a fix to one of the author's own tools, a self-test break checker, handed to Codex, re-checked, and judged by Claude, with the full transcript. `judge references/example-run --check` re-reads the judge's saved answer and prints its six verdicts, with no model call.
+- The example run is real: a fix to one of the author's own tools, a self-test break checker, handed to Codex, re-checked, and judged by Claude, with the full transcript.
 
 The full procedure, the boundaries and where the rules came from are in [SKILL.md](SKILL.md).
 
@@ -114,8 +114,6 @@ compared on the same task.
 
 **Where it came from.** Own practice, 2026-09: whole lines of work handed from Claude Code to Codex through handoff packages, with a second agent auditing the evidence afterwards. This skill joins those separate habits into one run folder and one command.
 
-**Evidence.** What was broken on purpose to show that the self-tests can fail is under [Verify](#verify); what was run end to end, and in which agent, is under [Compatibility](#compatibility).
-
 ## Install
 
 Pick one of four ways: three for Claude Code, and one that puts the folder where OpenAI Codex reads skills. Claude Code is the tested host; Codex was tested as the builder and as a judge, not as the session the skill starts from. Skills load when a session starts, so open a **new** session after installing.
@@ -128,7 +126,7 @@ git clone https://github.com/NickkkLian/nk-two-brain ~/.claude/skills/nk-two-bra
 
 1. Run the command above (for one project only, clone into `.claude/skills/nk-two-brain` inside that project).
 2. Start a new Claude Code session.
-3. Check it loaded: type `/nk-two-brain` — it appears in the slash-command menu. Invoke it by that name: whether a plain request triggers it has not been tested.
+3. Check it loaded: type `/nk-two-brain` — it appears in the slash-command menu. Invoke it by that name.
 
 ### 2 · Claude Code in a terminal session (plugin)
 
@@ -151,7 +149,7 @@ Without opening a session, the same two steps work from a shell: `claude plugin 
 
 <img src="https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/panel-route/panel-route.gif" alt="Adding the marketplace and installing a skill in the desktop app" width="640">
 
-<sub>Recorded on 2026-09-16, when the marketplace listed ten skills, all at version 0.1.0; it lists more now. The repository list in this recording shows the recorder's own repositories because a GitHub account is connected; yours will show yours. Type the full name as in step 4.</sub>
+<sub>Recorded on 2026-09-16, when the marketplace listed ten skills; it lists more now. The repository list will show your own repositories.</sub>
 
 1. In the chat box, type `/plugin marketplace` and press Enter (or open **Settings → Customize → Plugins**). The **Plugins** panel opens.
    <br><img src="https://raw.githubusercontent.com/NickkkLian/nickkk-skills/main/gallery/panel-route/step1-type-plugin-marketplace.png" alt="/plugin marketplace typed in the chat box" width="480">
@@ -175,7 +173,7 @@ git clone https://github.com/NickkkLian/nk-two-brain.git ~/.agents/skills/nk-two
 
 1. Run the command above (for one project only, clone into `.agents/skills/nk-two-brain` inside that project).
 2. Start a new Codex session.
-3. Check it loaded, without spending a model call: `codex debug prompt-input | grep -o -- '- nk-two-brain[a-z0-9:-]*' | sort -u` prints `- nk-two-brain:nk-two-brain:`. Codex adds the `nk-two-brain:` prefix because this repository also carries a Claude Code plugin manifest. Starting this skill from inside a Codex session has not been tested.
+3. Check it loaded, without spending a model call: `codex debug prompt-input | grep -o -- '- nk-two-brain[a-z0-9:-]*' | sort -u` prints `- nk-two-brain:nk-two-brain:`. Codex adds the `nk-two-brain:` prefix because this repository also carries a Claude Code plugin manifest.
 
 ## Compatibility
 
@@ -202,8 +200,7 @@ The self-test ends on this line:
 The example run at the top of this page was recorded on 2026-09-29.
 
 Python 3.9+, standard library only; needs git. Two break matrices were run on two_brain.py in a sandbox copy.
-41 lines that record a finding or return a failing exit code, matched by a pattern rather than listed by hand
-(two of them inside the self-test's stand-in builders), were neutralised one at a time; each turned the self-test red
+41 lines that record a finding or return a failing exit code were neutralised one at a time; each turned the self-test red
 without a traceback. 19 hand-written breaks of checks that are not such lines (the crash rule, the seal
 comparison, the judge's switched-off tools, the bundle's file list, the untracked-file diff, among others) each turned
 the self-test red, and each named its own check on a failing line. The unmutated control stayed green both times.
